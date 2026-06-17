@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ram nam Jap Counter</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family: "Segoe UI", sans-serif;
+}
+
+body{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    overflow:hidden;
+
+    background:
+    radial-gradient(circle at top,
+    rgba(255,153,51,0.25),
+    transparent 30%),
+    linear-gradient(135deg,#0f172a,#1e293b);
+
+    color:white;
+}
+.container{
+    width:90%;
+    max-width:700px;
+    background:rgba(255,255,255,0.08);
+    backdrop-filter:blur(20px);
+    border:1px solid rgba(255,255,255,0.15);
+    border-radius:30px;
+    padding:40px 25px;
+    text-align:center;
+    box-shadow:0 20px 60px rgba(0,0,0,0.4);
+}
+
+.badge{
+    display:inline-block;
+    padding:8px 16px;
+    border-radius:50px;
+    background:rgba(255,255,255,0.08);
+    color:#ddd;
+    margin-bottom:20px;
+}
+
+h1{
+    font-size:3rem;
+    margin-bottom:10px;
+}
+
+.subtitle{
+    color:#cbd5e1;
+    margin-bottom:30px;
+    line-height:1.6;
+}
+
+.counter{
+    font-size:5rem;
+    font-weight:800;
+    margin:15px 0;
+    transition:0.2s;
+}
+
+.pulse{
+    animation:pulse .25s;
+}
+
+@keyframes pulse{
+    50%{
+        transform:scale(1.08);
+    }
+}
+
+.mantra{
+    font-size:1.8rem;
+    margin-bottom:25px;
+    color:#ffd700;
+}
+
+.buttons{
+    display:grid;
+    gap:15px;
+}
+
+.primary-btn{
+    padding:18px;
+    border:none;
+    border-radius:18px;
+    font-size:1.2rem;
+    font-weight:bold;
+    cursor:pointer;
+    background:linear-gradient(135deg,#ff9933,#ff5722);
+    color:white;
+    transition:.2s;
+}
+
+.primary-btn:hover{
+    transform:translateY(-2px);
+}
+
+.secondary-row{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:15px;
+}
+
+.secondary-btn{
+    padding:15px;
+    border:none;
+    border-radius:15px;
+    cursor:pointer;
+    background:rgba(255,255,255,0.1);
+    color:white;
+    font-weight:600;
+}
+
+.secondary-btn:hover{
+    background:rgba(255,255,255,0.15);
+}
+
+.progress-box{
+    margin-top:25px;
+    padding:18px;
+    border-radius:20px;
+    background:rgba(255,255,255,0.06);
+}
+
+.progress-box span{
+    color:#cbd5e1;
+}
+
+.progress-box h3{
+    margin-top:8px;
+    font-size:1.5rem;
+}
+
+.footer{
+    margin-top:20px;
+    color:#cbd5e1;
+    font-size:14px;
+}
+
+/* Floating Ram Animation */
+
+.floating-ram{
+    position:fixed;
+    font-size:34px;
+    font-weight:bold;
+    pointer-events:none;
+    z-index:9999;
+
+    background:linear-gradient(
+        45deg,
+        #ff9933,
+        #ffd700,
+        #ff5722
+    );
+
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+
+    animation:floatRam 2s ease-out forwards;
+}
+
+@keyframes floatRam{
+
+    0%{
+        opacity:1;
+        transform:translateY(0) scale(.8);
+    }
+
+    50%{
+        opacity:1;
+        transform:translateY(-80px) scale(1.2);
+    }
+
+    100%{
+        opacity:0;
+        transform:translateY(-180px) scale(1.6);
+    }
+}
+
+@media(max-width:600px){
+
+    h1{
+        font-size:2.2rem;
+    }
+
+    .counter{
+        font-size:4rem;
+    }
+
+    .secondary-row{
+        grid-template-columns:1fr;
+    }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="badge">
+        🙏 Jai Shri Ram
+    </div>
+
+    <h1>राम नाम जप</h1>
+
+    <p class="subtitle">
+        Count every chant of Shri Ram with devotion.
+    </p>
+
+    <div class="counter" id="count">0</div>
+
+    <div class="mantra">
+        श्री राम
+    </div>
+
+    <div class="buttons">
+
+        <button class="primary-btn" id="addBtn">
+            +1 Nam Jap
+        </button>
+
+        <div class="secondary-row">
+
+            <button class="secondary-btn" id="undoBtn">
+                Undo
+            </button>
+
+            <button class="secondary-btn" id="resetBtn">
+                Reset
+            </button>
+
+        </div>
+
+    </div>
+
+    <div class="progress-box">
+        <span>Total Japs</span>
+        <h3 id="progressText">0 Chants</h3>
+    </div>
+
+    <div class="footer">
+        Count is automatically saved in your browser.
+    </div>
+
+</div>
+
+<script>
+
+const countElement = document.getElementById("count");
+const progressText = document.getElementById("progressText");
+
+let count = Number(localStorage.getItem("ramCount")) || 0;
+
+updateUI();
+
+function updateUI(){
+
+    countElement.textContent = count.toLocaleString();
+    progressText.textContent =
+    count.toLocaleString() + " Chants";
+
+    localStorage.setItem("ramCount", count);
+}
+
+function animateCounter(){
+
+    countElement.classList.remove("pulse");
+
+    void countElement.offsetWidth;
+
+    countElement.classList.add("pulse");
+}
+
+function showRamAnimation(){
+
+    const names = [
+        "राम",
+        "श्री राम",
+        "जय श्री राम",
+        "सीता राम",
+        "राम राम"
+    ];
+
+    const ram =
+    document.createElement("div");
+
+    ram.className =
+    "floating-ram";
+
+    ram.innerText =
+    names[Math.floor(
+        Math.random()*names.length
+    )];
+
+    const x =
+    Math.random() *
+    (window.innerWidth - 150);
+
+    const y =
+    window.innerHeight - 180;
+
+    ram.style.left =
+    x + "px";
+
+    ram.style.top =
+    y + "px";
+
+    document.body.appendChild(ram);
+
+    setTimeout(()=>{
+        ram.remove();
+    },2000);
+}
+
+document.getElementById("addBtn")
+.addEventListener("click",()=>{
+
+    count++;
+
+    animateCounter();
+
+    showRamAnimation();
+
+    updateUI();
+});
+
+document.getElementById("undoBtn")
+.addEventListener("click",()=>{
+
+    if(count>0){
+
+        count--;
+
+        animateCounter();
+
+        updateUI();
+    }
+});
+
+document.getElementById("resetBtn")
+.addEventListener("click",()=>{
+
+    if(confirm("Reset the counter?")){
+
+        count=0;
+
+        updateUI();
+    }
+});
+
+/* Spacebar Shortcut */
+
+document.addEventListener("keydown",(e)=>{
+
+    if(e.code==="Space"){
+
+        e.preventDefault();
+
+        count++;
+
+        animateCounter();
+
+        showRamAnimation();
+
+        updateUI();
+    }
+});
+
+</script>
+
+</body>
+</html>
